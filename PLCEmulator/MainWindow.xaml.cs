@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,7 +26,8 @@ namespace PLCEmulator
             InitializeComponent();
 
             var PLC = new Model.PLC();
-            ////PLC.Devices.Add(new Model.DIOAD());
+            var dev = new Model.DIOAD();
+            PLC.TryAddDevice(dev);
         }
     }
 }

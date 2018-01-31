@@ -1,34 +1,21 @@
 ﻿using PLCEmulator.Common;
-using PLCEmulator.Network;
+using PLCEmulator.Network.VDCOM;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static PLCEmulator.Network.Header;
 
 namespace PLCEmulator.Model
 {
     public class PLC : IIODevice
     {
-        public List<IDevice> Devices { get; private set; }
-
-        public Dictionary<Enum, Datablock> DataMapIn { get; protected set; } 
-
-        public Dictionary<Enum, Datablock> DataMapOut { get; protected set; } 
-
         public PLC()
         {
             _datablockIn = new byte[BLOCK_SIZE];
             _datablockOut = new byte[BLOCK_SIZE];
 
-            Devices = new List<IDevice>();
-            Devices.Add(new DIOAD());
-            DataMapIn = new Dictionary<Enum, Datablock>();
-            DataMapOut = new Dictionary<Enum, Datablock>();
+            _header = new Header.Content();
 
             // Read & write connected devices
             _wtoken = new CancellationTokenSource();
@@ -38,10 +25,8 @@ namespace PLCEmulator.Model
             _server = new Server("192.168.56.1", 2000, BLOCK_SIZE);
             _server.DataReceived += Server_DataReceived;
 
-
         }
 
-        // Server communication
         private void Server_DataReceived(object sender, DataReceivedEventArgs e)
         {
             if (e.Data.Length > 0)
@@ -53,9 +38,10 @@ namespace PLCEmulator.Model
             
                 lock (_lockOut)
                 {
-                    Network.Header.UpdateHeader(ref header, ref _datablockOut);
+                    Header.UpdateHeader(ref _header, ref _datablockOut);
                 }
 
+                // TODO: Check for update flag before writing?
                 Task.Run(() => _server.SendData(_datablockOut));
             }
         }
@@ -78,7 +64,7 @@ namespace PLCEmulator.Model
             {
                 foreach (var condevice in iodevice.Devices)
                 {
-                    ReadDevice(condevice);
+                    ReadDevice(condevice.Key);
                 }
             }
         }
@@ -101,90 +87,41 @@ namespace PLCEmulator.Model
             {
                 foreach (var condevice in iodevice.Devices)
                 {
-                    WriteDevice(condevice);
+                    WriteDevice(condevice.Key);
                 }
             }
         }
 
         private async void ReadWriteDevice()
         {
-            while (_wtoken.IsCancellationRequested && Devices.Count > 0)
+            while (!_wtoken.IsCancellationRequested)
             {
-                ReadDevice(this);
-                WriteDevice(this);
+                // Clear the datablocks in case a device got removed
+                lock (_lockIn)
+                    lock (_lockOut)
+                    {
+                        Array.Clear(_datablockOut, 0, _datablockOut.Length);
+                        Array.Clear(_datablockIn, 0, _datablockIn.Length);
+                    }
 
+                if (Devices.Count > 0)
+                {
+                    ReadDevice(this);
+                    WriteDevice(this);
+                }
+
+                // TODO: Calculate correct delay
                 await Task.Delay(100);
             }
-
         }
-
-        //private void ReadWriteVDCOM()
-        //{
-        //    var vdcom = new VDCOM();
-
-        //    while (true)
-        //    {
-        //        TcpClient client = null;
-        //        TcpListener listen = null;
-        //        NetworkStream stream = null;
-        //        Header header = new Header();
-
-        //        try
-        //        {
-        //            vdcom.Connect(out listen, out client, out stream, "192.168.56.1", 2000);
-
-        //            while (client.Connected)
-        //            {
-        //                if (ReadVDCOM(stream) > 0)
-        //                {
-        //                    VDCOM.UpdateHeader(ref header, ref _datablock_out);
-        //                    WriteVDCOM(stream);
-        //                }
-
-        //                Thread.Sleep(100);
-        //            }
-        //        }
-        //        catch (SocketException e)
-        //        {
-        //            Console.WriteLine("SocketException: {0}", e);
-        //        }
-        //        finally
-        //        {
-        //            listen.Stop();
-        //        }
-        //    }
-
-        //}
-
-
-        //private int ReadVDCOM(NetworkStream stream)
-        //{
-        //    lock (inlock)
-        //    {
-        //        return stream.Read(_datablock_in, 0, _datablock_in.Length);
-        //    }
-        //}
-
-        //private void WriteVDCOM(NetworkStream stream)
-        //{
-        //    lock (outlock)
-        //    {
-        //        //_datablock_out[53] = 255;
-        //        stream.Write(_datablock_out, 0, _datablock_out.Length);
-        //    }
-        //}
 
         private byte[] _datablockIn;
         private byte[] _datablockOut;
-
         private const int BLOCK_SIZE = 8192;
-
         private CancellationTokenSource _wtoken;
-
+        private Header.Content _header;
         private Object _lockIn = new Object();
         private Object _lockOut = new Object();
-
         private Server _server;
-        private Header.Content header = new Header.Content();
     }
 }

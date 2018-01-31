@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PLCEmulator.Network
+namespace PLCEmulator.Network.VDCOM
 {
     public sealed partial class Server
     {
