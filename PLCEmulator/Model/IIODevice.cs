@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PLCEmulator.Model
 {
-    public interface IDevice
+    public interface IIODevice : IDevice
     {
         Dictionary<Enum, Datablock> DataMapIn { get; }
 

@@ -71,11 +71,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Interface\IDevice.cs" />
-    <Compile Include="Model\Interface\IIODevice.cs" />
-    <Compile Include="Model\Device\PLC.cs" />
-    <Compile Include="Model\Device\DIOAD.cs" />
-    <Compile Include="Model\Device\PBL.cs" />
+    <Compile Include="Model\IDevice.cs" />
+    <Compile Include="Model\IIODevice.cs" />
+    <Compile Include="Model\DeviceHub.cs" />
+    <Compile Include="Model\IBinaryDevice.cs" />
+    <Compile Include="Model\PLC.cs" />
+    <Compile Include="Model\DIOAD.cs" />
+    <Compile Include="Model\PBL.cs" />
     <Compile Include="Network\VDCOM\Server.cs" />
     <Compile Include="Network\VDCOM\Server.Receiver.cs" />
     <Compile Include="Network\VDCOM\Server.Sender.cs" />

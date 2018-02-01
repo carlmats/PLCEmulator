@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using PLCEmulator.Model;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PLCEmulator
 {
@@ -25,9 +12,14 @@ namespace PLCEmulator
         {
             InitializeComponent();
 
-            var PLC = new Model.PLC();
-            var dev = new Model.DIOAD();
-            PLC.TryAddDevice(dev);
+            var PLC = new PLC();
+            var dev = new DIOAD();
+            PLC.TryAddDevice(0,dev);
+            var pbl = new PBL();
+            dev.TryAddDevice(0, pbl);
+            //pbl.Active = false;
+            //Thread.Sleep(20000);
+            //pbl.Active = true;
         }
     }
 }

@@ -27,6 +27,12 @@ namespace PLCEmulator.Common
             set => _end = value;
         }
 
+        public void SetRange(int start, int end)
+        {
+            _start = start;
+            _end = end;
+        }
+
         public bool InRange(int value)
         {
             return value <= End && value >= Start ? true : false; 

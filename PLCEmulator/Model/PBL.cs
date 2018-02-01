@@ -7,10 +7,8 @@ using PLCEmulator.Common;
 
 namespace PLCEmulator.Model
 {
-    public class PBL : IDevice
+    public class PBL : IBinaryDevice
     {
-        public Dictionary<Enum, Datablock> DataMapIn { get; set; }
 
-        public Dictionary<Enum, Datablock> DataMapOut { get; set; }
     }
 }
