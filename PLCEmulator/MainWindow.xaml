@@ -3,10 +3,53 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PLCEmulator.ViewModel"
+        xmlns:view="clr-namespace:PLCEmulator.View"
         xmlns:local="clr-namespace:PLCEmulator"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
+    
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="125"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ListView x:Name="DeviceDragList" ItemsSource="{Binding DeviceCollection}" MouseMove="DeviceDragList_MouseMove"
+                  Grid.Column="0" BorderBrush="Black" BorderThickness="1,1,0,1">
+            <ListView.ItemTemplate>
+                <DataTemplate DataType="vm:Device">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{Binding Geometry}" Stroke="Black" StrokeThickness="1" Width="25" Height="25" Stretch="Fill" Margin="5,0,0,0"/>
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                <Border x:Name="RootBorder" Padding="10" Background="White" Cursor="Hand">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="RootBorder" Property="Background" Value="#FFBEE4FF" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+        <Border BorderBrush="Black" BorderThickness="1" Padding="10" Grid.Column="1">
+            <view:GraphAreaView />
+        </Border>
     </Grid>
 </Window>

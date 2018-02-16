@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PLCEmulator.Model
+namespace PLCEmulator.Model.Device
 {
     public class PLC : DeviceHub
     {
@@ -32,16 +32,10 @@ namespace PLCEmulator.Model
             if (e.Data.Length > 0)
             {
                 lock (_lockDevice)
-                {
                     _datablockToDevice = e.Data;
-                }
-            
                 lock (_lockVcom)
-                {
                     Header.UpdateHeader(ref _header, ref _datablockToVcom);
-                }
 
-                //if (_datablockToVcom[175] > 0) _datablockToVcom[175] = (byte)(_datablockToVcom[175] << 1);
                 // TODO: Check for update flag before writing?
                 Task.Run(() => _server.SendData(_datablockToVcom));
             }
@@ -53,18 +47,13 @@ namespace PLCEmulator.Model
             while (!_wtoken.IsCancellationRequested)
             {
                 // Clear the datablocks in case a device got removed
-                lock (_lockDevice)
+                if (DeviceSlots.Count > 0)
+                {
                     lock (_lockVcom)
-                    {
-                        Array.Clear(_datablockToVcom, 0, _datablockToVcom.Length);
-                        Array.Clear(_datablockToDevice, 0, _datablockToDevice.Length);
-
-                        if (DeviceSlots.Count > 0)
-                        {
-                            ReadDevices(ref _datablockToVcom);
-                            WriteDevices(ref _datablockToDevice);
-                        }
-                    }
+                        ReadDevices(ref _datablockToVcom);
+                    lock (_lockDevice)
+                        WriteDevices(ref _datablockToDevice);
+                }
                 // TODO: Calculate correct delay
                 await Task.Delay(100);
             }

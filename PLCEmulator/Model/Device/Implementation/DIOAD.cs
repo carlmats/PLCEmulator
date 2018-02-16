@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PLCEmulator.Model
+namespace PLCEmulator.Model.Device
 {
     // Digital IO area device
     public class DIOAD : DeviceHub
@@ -22,7 +22,7 @@ namespace PLCEmulator.Model
             DataMapOut[DataKeyOut.DeviceOnOff].ByteValue = 255;
 
             BinaryDeviceOut = new Datablock(new Range(170, 195)); // 170 works why ??? not 195
-            BinaryDeviceIn = new Datablock(new Range(63, 93)); // not 93
+            BinaryDeviceIn = new Datablock(new Range(72, 93)); // not 93
 
 
         }

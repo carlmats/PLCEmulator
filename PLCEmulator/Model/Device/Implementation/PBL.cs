@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PLCEmulator.Common;
 
-namespace PLCEmulator.Model
+namespace PLCEmulator.Model.Device
 {
-    public class IBinaryDevice : IDevice
+    public class PBL : BinaryDevice
     {
-        public bool Active { get; set; }
     }
 }

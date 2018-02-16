@@ -32,7 +32,7 @@ namespace PLCEmulator.Network.VDCOM
             {
                 while(_client.Connected && !_wtoken.IsCancellationRequested)
                 {
-                    if (_stream.Read(_data, 0, _data.Length) > 0)
+                    if (_stream.CanRead && _stream.Read(_data, 0, _data.Length) > 0)
                     {
                         DataReceived?.BeginInvoke(this, new DataReceivedEventArgs(_data), EndAsyncEvent, null);
                     }

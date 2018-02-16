@@ -2,23 +2,16 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PLCEmulator.Model
+namespace PLCEmulator.Model.Device
 {
-    public class DeviceHub : IIODevice
+    public class DeviceHub : IODevice
     {
-        protected ConcurrentDictionary<int, IDevice> DeviceSlots { get; private set; }
+        public ConcurrentDictionary<int, IDevice> DeviceSlots { get; private set; }
 
         protected Datablock BinaryDeviceIn { get; set; }
 
         protected Datablock BinaryDeviceOut { get; set; }
-
-        public Dictionary<Enum, Datablock> DataMapIn { get; private set; }
-
-        public Dictionary<Enum, Datablock> DataMapOut { get; private set; }
 
 
         public DeviceHub()
@@ -47,16 +40,19 @@ namespace PLCEmulator.Model
                 int slot = deviceSlot.Key;
                 IDevice device = deviceSlot.Value;
 
-                if (device is IIODevice)
+                if (device is IODevice)
                 {
-                    foreach (var map in (device as IIODevice).DataMapOut)
+                    foreach (var map in (device as IODevice).DataMapOut)
                     {
                         datablock[map.Value.Range.Start] = map.Value.ByteValue;
                     }
                 }
-                else if ((device is IBinaryDevice) && (device as IBinaryDevice).Active)
+                else if ((device is BinaryDevice))
                 {
-                    datablock[BinaryDeviceOut.Range.Start] |= (byte)(1 << slot);
+                    if((device as BinaryDevice).Triggered)
+                        datablock[BinaryDeviceOut.Range.Start] |= (byte)(1 << slot);
+                    else
+                        datablock[BinaryDeviceOut.Range.Start] &= (byte)~(1 << slot);
                 }
 
                 // Connected DeviceHub
@@ -74,20 +70,25 @@ namespace PLCEmulator.Model
                 int slot = deviceSlot.Key;
                 IDevice device = deviceSlot.Value;
 
-                if (device is IIODevice)
+                if (device is IODevice)
                 {
-                    foreach (var map in (device as IIODevice).DataMapIn)
+                    foreach (var map in (device as IODevice).DataMapIn)
                     {
                         map.Value.ByteValue = datablock[map.Value.Range.Start];
                     }
                 }
-                else if (device is IBinaryDevice)
+                else if (device is BinaryDevice)
                 {
-                    if((datablock[BinaryDeviceIn.Range.Start] & (byte)(1 << slot)) > 0)
+                    if ((datablock[BinaryDeviceIn.Range.Start] & (byte)(1 << slot)) > 0)
                     {
-                        (device as IBinaryDevice).Active = true;
+                        (device as BinaryDevice).Active = true;
+                    }
+                    else
+                    {
+                        (device as BinaryDevice).Active = false;
                     }
                 }
+
                 if (device is DeviceHub)
                 {
                     (device as DeviceHub).WriteDevices(ref datablock);
