@@ -1,4 +1,5 @@
 ﻿using PLCEmulator.Common;
+using PLCEmulator.Debug;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PLCEmulator.Network.VDCOM
+namespace PLCEmulator.Network
 {
     public sealed partial class Server
     {
@@ -18,7 +19,6 @@ namespace PLCEmulator.Network.VDCOM
             internal Receiver(NetworkStream stream, TcpClient client, int blockSize)
             {
                 _stream = stream;
-                //_stream.ReadTimeout = 5000;
                 _client = client;
                 _data = new byte[blockSize];
                 _blockSize = blockSize;
@@ -30,13 +30,31 @@ namespace PLCEmulator.Network.VDCOM
 
             private void Run()
             {
-                while(_client.Connected && !_wtoken.IsCancellationRequested)
+                while (_client.Connected && !_wtoken.IsCancellationRequested)
                 {
-                    if (_stream.CanRead && _stream.Read(_data, 0, _data.Length) > 0)
+                    try
                     {
-                        DataReceived?.BeginInvoke(this, new DataReceivedEventArgs(_data), EndAsyncEvent, null);
+                        if (_stream.CanRead && _stream.Read(_data, 0, _data.Length) > 0)
+                        {
+                            DataReceived?.BeginInvoke(this, new DataReceivedEventArgs(_data), EndAsyncEvent, null);
+                        }
+                    }
+                    catch
+                    {
+                        if(_wtoken.IsCancellationRequested)
+                            Logger.Instance.WriteLog("Aborted read due to cancellation request");
+                        else
+                            Logger.Instance.WriteLog("Aborted read due to an unkown exception");
+
+                        break;
                     }
                 }
+            }
+
+            internal void Dispose()
+            {
+                _wtoken?.Cancel();
+                Logger.Instance.WriteLog("Disposing reciever");
             }
 
             private void EndAsyncEvent(IAsyncResult iar)
@@ -47,7 +65,7 @@ namespace PLCEmulator.Network.VDCOM
                 }
                 catch
                 {
-                    Console.WriteLine("An event listener blew up.. RIP");
+                    Logger.Instance.WriteLog("An event listener blew up.. RIP");
                 }
             }
 

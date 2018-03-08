@@ -1,6 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:PLCEmulator">
+                    xmlns:device="clr-namespace:PLCEmulator.Model.Device"
+                    xmlns:graphxctrl="clr-namespace:GraphX.Controls;assembly=GraphX.WPF.Controls"
+                    xmlns:graph="clr-namespace:PLCEmulator.Model.Graph">
 
+    
+     
 
 </ResourceDictionary>

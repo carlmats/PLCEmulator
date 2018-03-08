@@ -1,26 +1,38 @@
-﻿<Window x:Class="PLCEmulator.MainWindow"
+﻿<Controls:MetroWindow x:Class="PLCEmulator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:vm="clr-namespace:PLCEmulator.ViewModel"
         xmlns:view="clr-namespace:PLCEmulator.View"
+        xmlns:debug="clr-namespace:PLCEmulator.Debug"
+        xmlns:common="clr-namespace:PLCEmulator.Common"
+        xmlns:device="clr-namespace:PLCEmulator.Model.Device"
         xmlns:local="clr-namespace:PLCEmulator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
+        Title="PLC emulator" Width="1280" Height="720">
+
+    <Window.Resources>
+        <Style TargetType="xctk:PropertyGrid">
+            <Setter Property="Background" Value="{DynamicResource AccentColorBrush3}" />
+        </Style>
+    </Window.Resources>
     
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="125"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="150" />
+        </Grid.RowDefinitions>
 
         <ListView x:Name="DeviceDragList" ItemsSource="{Binding DeviceCollection}" MouseMove="DeviceDragList_MouseMove"
-                  Grid.Column="0" BorderBrush="Black" BorderThickness="1,1,0,1">
+                  Grid.Column="0" Grid.RowSpan="2" BorderBrush="Black" BorderThickness="0,0,1,0">
             <ListView.ItemTemplate>
                 <DataTemplate DataType="vm:Device">
                     <StackPanel Orientation="Horizontal">
@@ -39,7 +51,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="RootBorder" Property="Background" Value="#FFBEE4FF" />
+                                        <Setter TargetName="RootBorder" Property="Background" Value="{DynamicResource AccentColorBrush3}" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -48,8 +60,27 @@
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
-        <Border BorderBrush="Black" BorderThickness="1" Padding="10" Grid.Column="1">
-            <view:GraphAreaView />
+        <Border BorderBrush="Black" Padding="10" Grid.Column="1">
+            <view:GraphAreaView x:Name="_graphAreaView"/>
         </Border>
+        <xctk:PropertyGrid x:Name="_propertyGrid" SelectedObject="{Binding SelectedDevice}" Grid.Column="2" Grid.RowSpan="2" BorderThickness="1,0,0,0" >
+            <xctk:PropertyGrid.EditorDefinitions>
+                <xctk:EditorTemplateDefinition TargetProperties="Triggered">
+                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Value}" Command="{Binding DataContext.ToggleTriggeredCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type xctk:PropertyGrid}}}" MaxWidth="100"/>
+                        </DataTemplate>
+                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                </xctk:EditorTemplateDefinition>
+                <xctk:EditorTemplateDefinition TargetProperties="Active">
+                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Value}" Command="{Binding DataContext.ToggleActivateCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type xctk:PropertyGrid}}}" MaxWidth="100"/>
+                        </DataTemplate>
+                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                </xctk:EditorTemplateDefinition>
+            </xctk:PropertyGrid.EditorDefinitions>
+        </xctk:PropertyGrid>
+        <ListView x:Name="LogView" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="12"  ItemsSource="{Binding Source={x:Static debug:Logger.Instance}, Path=Log}" />
     </Grid>
-</Window>
+</Controls:MetroWindow>

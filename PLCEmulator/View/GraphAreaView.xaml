@@ -6,30 +6,91 @@
              xmlns:graphxctrl="clr-namespace:GraphX.Controls;assembly=GraphX.WPF.Controls"
              xmlns:graph="clr-namespace:PLCEmulator.Model.Graph"
              xmlns:device="clr-namespace:PLCEmulator.Model.Device"
-             xmlns:vm="clr-namespace:PLCEmulator.ViewModel"
-             xmlns:local="clr-namespace:PLCEmulator.View"
              AllowDrop="True"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
 
-    <UserControl.DataContext>
-        <vm:GraphAreaViewModel />
-    </UserControl.DataContext>
 
     <graphxctrl:ZoomControl x:Name="g_zoomctrl" MouseLeftButtonDown="g_zoomctrl_MouseLeftButtonDown">
-        <graph:GraphAreaPE x:Name="g_area" LogicCore="{Binding LogicCore}" Cursor="Hand" VertexClicked="g_area_VertexClicked"/>
+        <graph:GraphAreaPE x:Name="g_area" LogicCore="{Binding LogicCore}" Cursor="Hand" VertexClicked="g_area_VertexClicked" />
     </graphxctrl:ZoomControl>
-    
+
     <UserControl.Resources>
-        <Style TargetType="{x:Type graphxctrl:VertexControl}">
-            <Setter Property="Background" Value="#FFE3E3E3"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="3"/>
+        <!--PLC-->
+        <DataTemplate DataType="{x:Type device:PLC}">
+            <Path x:Name="PLCPath" Stroke="Black" StrokeThickness="2" Data="{StaticResource ResourceKey=PLC_icon}" Stretch="Fill" Margin="5,5,5,5"/>
+        </DataTemplate>
+
+        <!--TURCK-->
+        <DataTemplate DataType="{x:Type device:DIOAD}">
+            <Path x:Name="DIOADPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="2" Data="{StaticResource ResourceKey=DIOAD_icon}"  Stretch="Fill" Margin="5,5,5,5" />
+        </DataTemplate>
+
+        <!--PICK BY LIGHT-->
+        <DataTemplate DataType="{x:Type device:PBL}">
+            <StackPanel Orientation="Vertical">
+                <Path x:Name="PBLPath" Stroke="Black" Fill="White" StrokeThickness="2" Data="{StaticResource ResourceKey=PBL_icon}" Stretch="Fill" Margin="5,5,5,5"/>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Active}" Value="True">
+                    <Setter TargetName="PBLPath" Property="Fill" Value="Green"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <!--NUTRUNNER-->
+        <DataTemplate DataType="{x:Type device:Nutrunner}">
+            <Path x:Name="NutrunnerPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="2" Data="{StaticResource ResourceKey=Nutrunner_icon}"  Stretch="Fill" Margin="5,5,5,5" />
+        </DataTemplate>
+
+        <!--EDGE CONTROL-->
+        <Style TargetType="graphxctrl:EdgeControl">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type graphxctrl:VertexControl}">
-                        <Border BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                    <ControlTemplate TargetType="graphxctrl:EdgeControl">
+                        <Grid>
+                            <!-- PART_edgePath: EVisibility, PART_edgeArrowPath: AVisibility -->
+                            <Path Stroke="{TemplateBinding Foreground}"
+                          StrokeThickness="2" MinWidth="1" MinHeight="1"
+                          ToolTip="{TemplateBinding ToolTip}" 
+                            x:Name="PART_edgePath" Visibility="{Binding EVisibility}"/>
+                            <graphxctrl:DefaultEdgePointer NeedRotation="true" x:Name="PART_EdgePointerForTarget" Visibility="{Binding AVisibility}">
+                                <Path Data="M0,0.5 L1,1 1,0" Fill="Black" Stretch="Uniform" Width="10" Height="10"/>
+                            </graphxctrl:DefaultEdgePointer>
+                            <graphxctrl:EdgeLabelControl x:Name="PART_edgeLabel" Content="{Binding Edge, RelativeSource={RelativeSource TemplatedParent}}"  />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--EDGE LABEL CONTROL-->
+        <Style TargetType="{x:Type graphxctrl:EdgeLabelControl}">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type graphxctrl:EdgeLabelControl}">
+                        <Grid>
+                            <Border Background="White" CornerRadius="8" MinWidth="30" >
+                                <TextBox x:Name="EdgeText" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" TextChanged="EdgeText_TextChanged" BorderThickness="0" TextAlignment="Center" FontWeight="DemiBold" FontSize="24" Cursor="Pen"/>
+                                <!--<ContentPresenter Margin="3" TextBlock.TextAlignment="Center" TextBlock.FontWeight="DemiBold" TextBlock.FontSize="24" TextBlock.Foreground="Black" />-->
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--VERTEX CONTROL-->
+        <Style TargetType="{x:Type graph:VertexControlPE}">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type graph:VertexControlPE}">
+                        <Border x:Name="VertexBorder" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
                             <Grid>
                                 <ContentPresenter Content="{TemplateBinding Vertex}"/>
                             </Grid>
@@ -37,29 +98,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <!--<Setter Property="ToolTip">
-                <Setter.Value>
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Text="Additional person info:" Margin="4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
-                        <StackPanel Orientation="Horizontal" Margin="3">
-                            <TextBlock MinWidth="70" Text="Name: " VerticalAlignment="Center"/>
-                            <TextBlock FontWeight="Bold" Text="{Binding Name}" Margin="3" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="3">
-                            <TextBlock MinWidth="70" Text="Occupation: " VerticalAlignment="Center"/>
-                            <TextBlock FontWeight="Bold" Text="{Binding Profession}" Margin="3" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="3">
-                            <TextBlock MinWidth="70" Text="Age: " VerticalAlignment="Center"/>
-                            <TextBlock FontWeight="Bold" Text="{Binding Age}" Margin="3" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="3">
-                            <TextBlock MinWidth="70" Text="Gender: " VerticalAlignment="Center"/>
-                            <TextBlock FontWeight="Bold" Text="{Binding Gender}" Margin="3" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Setter.Value>
-            </Setter>-->
 
             <!-- VERTEX DRAGGING CONTROL -->
             <Setter Property="graphxctrl:DragBehaviour.IsDragEnabled"
@@ -67,6 +105,7 @@
             <Setter Property="graphxctrl:DragBehaviour.UpdateEdgesOnMove"
                 Value="True" />
 
+            <!--VERTEXCONTROL TRIGGERS-->
             <Style.Triggers>
                 <EventTrigger RoutedEvent="MouseEnter">
                     <EventTrigger.Actions>
@@ -81,29 +120,35 @@
                     <EventTrigger.Actions>
                         <BeginStoryboard>
                             <Storyboard>
-                                <ColorAnimation To="#FFE3E3E3" Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" Duration="0:0:0.5"/>
+                                <ColorAnimation To="LightGray" Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" Duration="0:0:0.5"/>
                             </Storyboard>
                         </BeginStoryboard>
                     </EventTrigger.Actions>
                 </EventTrigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="BorderBrush" Value="CadetBlue" />
+                </Trigger>
+                <DataTrigger Binding="{Binding Loading}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard x:Name="sbLoading">
+                            <Storyboard  Storyboard.TargetProperty="Opacity">
+                                <DoubleAnimation Duration="0:0:1" From="1.0" To="0.0" AutoReverse="True" RepeatBehavior="Forever"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Loading}" Value="false">
+                    <DataTrigger.EnterActions>
+                        <StopStoryboard BeginStoryboardName="sbLoading" />
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StartupError}" Value="True">
+                    <Setter Property="Background" Value="PaleVioletRed" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StartupError}" Value="False">
+                    <Setter Property="Background" Value="LightGray" />
+                </DataTrigger>
             </Style.Triggers>
         </Style>
-
-        <DataTemplate DataType="{x:Type device:PLC}">
-            <Path x:Name="PLCPath" Stroke="Black" StrokeThickness="2" Data="{StaticResource ResourceKey=PLC_icon}" />
-        </DataTemplate>
-
-        <DataTemplate DataType="{x:Type device:DIOAD}">
-            <Path x:Name="DIOADPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="2" Data="{StaticResource ResourceKey=DIOAD_icon}" />
-        </DataTemplate>
-
-        <DataTemplate DataType="{x:Type device:PBL}">
-            <Path x:Name="PBLPath" Stroke="Black" Fill="White" StrokeThickness="2" Data="{StaticResource ResourceKey=PBL_icon}"/>
-            <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding Active}" Value="True">
-                    <Setter TargetName="PBLPath" Property="Fill" Value="Green"/>
-                </DataTrigger>
-            </DataTemplate.Triggers>
-        </DataTemplate>
     </UserControl.Resources>
 </UserControl>

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PLCEmulator.Model.Device
 {
-    public class DeviceBase : DataVertex, IDevice, INotifyPropertyChanged
+    public abstract class DeviceBase : DataVertex, IDevice, INotifyPropertyChanged
     {
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -16,5 +16,6 @@ namespace PLCEmulator.Model.Device
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
     }
 }

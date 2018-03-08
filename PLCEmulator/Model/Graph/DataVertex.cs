@@ -1,16 +1,23 @@
-﻿using GraphX.PCL.Common.Models;
+﻿using GraphX.PCL.Common.Enums;
+using GraphX.PCL.Common.Models;
+using System.ComponentModel;
 
 namespace PLCEmulator.Model.Graph
 {
     //Vertex data object
     public class DataVertex : VertexBase
     {
-        public string Text { get; set; }
+        [Browsable(false)]
+        public new double Angle { get; set; }
 
-        public override string ToString()
-        {
-            return Text;
-        }
+        [Browsable(false)]
+        public new int GroupId { get; set; }
+
+        [Browsable(false)]
+        public new ProcessingOptionEnum SkipProcessing { get; set; }
+
+        [Browsable(false)]
+        public new long ID { get; set; }
 
     }
 }

@@ -15,16 +15,12 @@ namespace PLCEmulator.View
 
     public partial class GraphAreaView : UserControl
     {
-        private VertexControl _markedVC = null;
-
         public GraphAreaView()
         {
             InitializeComponent();
             g_area.MouseOverAnimation = AnimationFactory.CreateMouseOverAnimation(MouseOverAnimation.Scale, .3);
             g_area.DeleteAnimation = AnimationFactory.CreateDeleteAnimation(DeleteAnimation.Shrink, .5);
-
-            var vm = DataContext as GraphAreaViewModel;
-            g_area.GenerateGraph();
+            g_area.ShowAllEdgesLabels(true);
         }
 
         protected override void OnDrop(DragEventArgs e)
@@ -41,7 +37,7 @@ namespace PLCEmulator.View
 
                     if (vm.TryAddDevice(instance))
                     {
-                        g_area.AddVertex(instance, new VertexControl(instance));                        
+                        g_area.AddVertex(instance, new VertexControlPE(instance));                        
                         g_area.VertexList[instance].SetPosition(e.GetPosition(g_area));
                     }
                 }
@@ -62,48 +58,84 @@ namespace PLCEmulator.View
         // TODO: Rework 
         private void g_area_VertexClicked(object sender, VertexClickedEventArgs args)
         {
-            if(Keyboard.IsKeyDown(Key.A))
+            var vm = DataContext as GraphAreaViewModel;
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && vm.SelectedDevice != null)
             {
-                (args.Control.Vertex as PBL).Triggered = !(args.Control.Vertex as PBL).Triggered;
-            }
-
-            if(Keyboard.IsKeyDown(Key.LeftCtrl))
-            {
-                if(_markedVC == null)
+                if (vm.TryAddEdge(vm.SelectedDevice, (DataVertex)args.Control.Vertex))
                 {
-                    _markedVC = args.Control;
-                    _markedVC.BorderBrush = Brushes.BlueViolet;
+                    g_area.GenerateAllEdges();
                 }
-                else if(_markedVC != args.Control)
-                {
-                    var vm = DataContext as GraphAreaViewModel;
-
-                    if (vm.TryAddEdge((DataVertex)_markedVC.Vertex, (DataVertex)args.Control.Vertex))
-                    {
-                        _markedVC.BorderBrush = Brushes.Black;
-                        g_area.GenerateAllEdges();
-                        _markedVC = null;
-                    }
-                }
-
             }
             else
             {
-                if(_markedVC != null)
+                var vcpe = args.Control as VertexControlPE;
+                var vert = args.Control.Vertex as DeviceBase;
+                if (vcpe != null && vert != null)
                 {
-                    _markedVC.BorderBrush = Brushes.Black;
-                    _markedVC = null;
+                    DeselectVertices();
+                    vcpe.IsSelected = true;
+                    vm.SelectedDevice = vert;
                 }
-
             }
+
         }
 
         private void g_zoomctrl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (_markedVC != null)
+            DeselectVertices();
+        }
+
+        private void DeselectVertices()
+        {
+            var vm = DataContext as GraphAreaViewModel;
+            vm.SelectedDevice = null;
+
+            foreach (var vc in g_area.VertexList.Values)
             {
-                _markedVC.BorderBrush = Brushes.Black;
-                _markedVC = null;
+                var vcpe = vc as VertexControlPE;
+                if (vcpe != null)
+                {
+                    vcpe.IsSelected = false;
+                }
+            }
+        }
+
+        private void EdgeText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox != null)
+            {
+                int newSlot;
+                var ec = GetParent<EdgeControl>((Visual)e.Source);
+                var vm = DataContext as GraphAreaViewModel;
+
+                if (ec != default(EdgeControl) && vm != null && Int32.TryParse(textBox.Text, out newSlot))
+                {
+                    vm.TryChangeDeviceSlot(ec, newSlot);
+                    g_area.UpdateAllEdges();
+                }
+            }
+
+
+        }
+
+        private T GetParent<T>(Visual v)
+        {
+            while (v != null)
+            {
+                v = VisualTreeHelper.GetParent(v) as Visual;
+                if (v is T)
+                    break;
+            }
+
+            try
+            {
+                return (T)Convert.ChangeType(v, typeof(T));
+            }
+            catch (InvalidCastException)
+            {
+                return default(T);
             }
         }
     }

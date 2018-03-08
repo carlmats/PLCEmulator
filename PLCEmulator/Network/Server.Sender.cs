@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PLCEmulator.Network.VDCOM
+namespace PLCEmulator.Network
 {
     public sealed partial class Server
     {
@@ -14,7 +14,7 @@ namespace PLCEmulator.Network.VDCOM
         {
             internal void SendData(byte[] data)
             {
-                _stream.Write(data, 0, data.Length);
+                _stream?.Write(data, 0, data.Length);
             }
 
             internal Sender(NetworkStream stream, TcpClient client)

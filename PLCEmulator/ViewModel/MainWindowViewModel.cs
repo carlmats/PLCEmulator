@@ -1,7 +1,9 @@
-﻿using PLCEmulator.Model.Device;
+﻿using PLCEmulator.Debug;
+using PLCEmulator.Model.Device;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +34,7 @@ namespace PLCEmulator.ViewModel
             DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(PLC), Name = "PLC", Geometry = (Geometry)Application.Current.Resources["PLC_icon"] });
             DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(DIOAD), Name = "Turck", Geometry = (Geometry)Application.Current.Resources["DIOAD_icon"] });
             DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(PBL), Name = "PBL", Geometry = (Geometry)Application.Current.Resources["PBL_icon"] });
+            DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(Nutrunner), Name = "Nutrunner", Geometry = (Geometry)Application.Current.Resources["Nutrunner_icon"] });
         }
     }
 }

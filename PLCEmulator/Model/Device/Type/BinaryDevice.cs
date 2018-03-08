@@ -9,8 +9,22 @@ namespace PLCEmulator.Model.Device
 {
     public abstract class BinaryDevice : DeviceBase
     {
-        protected bool _active;
         protected bool _triggered;
+        protected bool _active;
+
+        [Category("Action")]
+        public bool Triggered
+        {
+            get => _triggered;
+            set
+            {
+                _triggered = value;
+                OnPropertyChanged("Triggered");
+            }
+        }
+
+        [ReadOnly(true)]
+        [Category("Action")]
         public bool Active
         {
             get => _active;
@@ -21,14 +35,9 @@ namespace PLCEmulator.Model.Device
             }
         }
 
-        public bool Triggered
+        public virtual void ToggleTriggered()
         {
-            get => _triggered;
-            set
-            {
-                _triggered = value;
-                OnPropertyChanged("Triggered");
-            }
+            Triggered = !Triggered;
         }
     }
 }

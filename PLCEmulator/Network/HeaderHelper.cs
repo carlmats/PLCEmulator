@@ -1,10 +1,13 @@
 ﻿using System;
 
-namespace PLCEmulator.Network.VDCOM
+namespace PLCEmulator.Network
 {
-    public static class Header
+    public static class HeaderHelper
     {
-        public struct Content
+
+        public static ContentOut header = new ContentOut();
+
+        public struct ContentOut
         {
             public short Version { get; set; }
             public ushort Length { get; set; }
@@ -17,7 +20,24 @@ namespace PLCEmulator.Network.VDCOM
 
         };
 
-        public static void UpdateHeader(ref Content header, ref byte[] datablock_out)
+        public struct ContentIn
+        {
+            public ushort requestUpdate;
+
+            public ushort ackUpdated;
+
+        };
+
+        public static ContentIn ParseHeaderIn(byte[] datablock)
+        {
+            return new ContentIn()
+            {
+                requestUpdate = datablock[0],
+                ackUpdated = datablock[1]
+            };
+        }
+
+        public static void UpdateHeaderOut(ref byte[] datablock_out)
         {
             header.Version = 1;
             header.Type = 4;
@@ -49,6 +69,7 @@ namespace PLCEmulator.Network.VDCOM
             bytes = BitConverter.GetBytes(header.Number);
             datablock_out[8] = bytes[1];
             datablock_out[9] = bytes[0];
+
 
         }
     }

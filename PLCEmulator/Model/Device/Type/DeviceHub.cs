@@ -1,13 +1,16 @@
 ﻿using PLCEmulator.Common;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace PLCEmulator.Model.Device
 {
-    public class DeviceHub : IODevice
+    public abstract class DeviceHub : IODevice
     {
-        public ConcurrentDictionary<int, IDevice> DeviceSlots { get; private set; }
+        // Create new class that extends with event when collection changes,
+        // redraw edges with new values
+        [Browsable(false)]
+        public ObservableConcurrentDictionary<int, IDevice> DeviceSlots { get; private set; }
 
         protected Datablock BinaryDeviceIn { get; set; }
 
@@ -16,9 +19,8 @@ namespace PLCEmulator.Model.Device
 
         public DeviceHub()
         {
-            DeviceSlots = new ConcurrentDictionary<int, IDevice>();
-            DataMapIn = new Dictionary<Enum, Datablock>();
-            DataMapOut = new Dictionary<Enum, Datablock>();
+            DeviceSlots = new ObservableConcurrentDictionary<int, IDevice>();
+
         }
 
         public bool TryAddDevice(int index, IDevice device)
@@ -40,19 +42,32 @@ namespace PLCEmulator.Model.Device
                 int slot = deviceSlot.Key;
                 IDevice device = deviceSlot.Value;
 
-                if (device is IODevice)
+                var iodevice = device as IODevice;
+                if (iodevice != null)
                 {
-                    foreach (var map in (device as IODevice).DataMapOut)
+                    // TODO: Must calculate start range for multiple devices of same type
+                    foreach (var map in iodevice.DataMapOut)
                     {
-                        datablock[map.Value.Range.Start] = map.Value.ByteValue;
+                        if (iodevice.Active && map.Value.BytePost)
+                        {
+                            datablock[map.Value.ByteIndex.Start] |= map.Value.ByteValue;
+                        }
+                        else
+                        {
+                            datablock[map.Value.ByteIndex.Start] &= (byte)~map.Value.ByteValue;
+                        }
                     }
                 }
                 else if ((device is BinaryDevice))
                 {
                     if((device as BinaryDevice).Triggered)
-                        datablock[BinaryDeviceOut.Range.Start] |= (byte)(1 << slot);
+                    {
+                        datablock[BinaryDeviceOut.ByteIndex.Start] |= (byte)(1 << slot);
+                    }
                     else
-                        datablock[BinaryDeviceOut.Range.Start] &= (byte)~(1 << slot);
+                    {
+                        datablock[BinaryDeviceOut.ByteIndex.Start] &= (byte)~(1 << slot);
+                    }
                 }
 
                 // Connected DeviceHub
@@ -72,20 +87,24 @@ namespace PLCEmulator.Model.Device
 
                 if (device is IODevice)
                 {
-                    foreach (var map in (device as IODevice).DataMapIn)
+                    var iodev = device as IODevice;
+                    foreach (var map in iodev.DataMapIn)
                     {
-                        map.Value.ByteValue = datablock[map.Value.Range.Start];
+                        map.Value.ByteValue = datablock[map.Value.ByteIndex.Start];
                     }
+
+                    iodev.InputReceived();
                 }
                 else if (device is BinaryDevice)
                 {
-                    if ((datablock[BinaryDeviceIn.Range.Start] & (byte)(1 << slot)) > 0)
+                    var bdev = device as BinaryDevice;
+                    if ((datablock[BinaryDeviceIn.ByteIndex.Start] & (byte)(1 << slot)) > 0)
                     {
-                        (device as BinaryDevice).Active = true;
+                        bdev.Active = true;
                     }
                     else
                     {
-                        (device as BinaryDevice).Active = false;
+                        bdev.Active = false;
                     }
                 }
 
@@ -95,7 +114,5 @@ namespace PLCEmulator.Model.Device
                 }
             }
         }
-
-
     }
 }
