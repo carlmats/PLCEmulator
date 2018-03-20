@@ -106,6 +106,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Common\DataBlock.cs" />
+    <Compile Include="Common\Dictionary.cs" />
     <Compile Include="Common\ObservableConcurrentDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\ThreadedObservableCollection.cs" />
@@ -133,7 +135,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\Datablock.cs" />
+    <Compile Include="Common\Data.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Common\Range.cs" />
     <Compile Include="MainWindow.xaml.cs">

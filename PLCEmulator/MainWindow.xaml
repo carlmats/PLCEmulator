@@ -14,6 +14,7 @@
         mc:Ignorable="d"
         Title="PLC emulator" Width="1280" Height="720">
 
+    
     <Window.Resources>
         <Style TargetType="xctk:PropertyGrid">
             <Setter Property="Background" Value="{DynamicResource AccentColorBrush3}" />

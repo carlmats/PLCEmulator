@@ -12,9 +12,9 @@ namespace PLCEmulator.Model.Device
         [Browsable(false)]
         public ObservableConcurrentDictionary<int, IDevice> DeviceSlots { get; private set; }
 
-        protected Datablock BinaryDeviceIn { get; set; }
+        protected DataBlock BinaryDeviceIn { get; set; }
 
-        protected Datablock BinaryDeviceOut { get; set; }
+        protected DataBlock BinaryDeviceOut { get; set; }
 
 
         public DeviceHub()
@@ -25,7 +25,7 @@ namespace PLCEmulator.Model.Device
 
         public bool TryAddDevice(int index, IDevice device)
         {
-             return DeviceSlots.TryAdd(index, device);
+            return DeviceSlots.TryAdd(index, device);
         }
 
         public bool TryRemoveDevice(IDevice device)
@@ -42,31 +42,47 @@ namespace PLCEmulator.Model.Device
                 int slot = deviceSlot.Key;
                 IDevice device = deviceSlot.Value;
 
+
                 var iodevice = device as IODevice;
                 if (iodevice != null)
                 {
-                    // TODO: Must calculate start range for multiple devices of same type
-                    foreach (var map in iodevice.DataMapOut)
+                    // TODO: Must calculate start range for multiple devices of same type.
+                    // Use offset to shift the data in the datablock for multiple nutrunners etc.
+                    foreach (var datablockMap in iodevice.DataMapOut)
                     {
-                        if (iodevice.Active && map.Value.BytePost)
+                        using (var dataEntryEnumerator = datablockMap.Value.GetDataEntries())
                         {
-                            datablock[map.Value.ByteIndex.Start] |= map.Value.ByteValue;
-                        }
-                        else
-                        {
-                            datablock[map.Value.ByteIndex.Start] &= (byte)~map.Value.ByteValue;
+                            while (dataEntryEnumerator.MoveNext())
+                            {
+                                var curData = dataEntryEnumerator.Current;
+                                if (iodevice.Active && datablockMap.Value.PostByte)
+                                {
+                                    if (datablockMap.Value.IsByteOwner)
+                                        datablock[curData.Key] = curData.Value;
+                                    else
+                                        datablock[curData.Key] |= curData.Value;
+                                }
+                                else
+                                {
+                                    if (datablockMap.Value.IsByteOwner)
+                                        datablock[curData.Key] = 0;
+                                    else
+                                        datablock[curData.Key] &= (byte)~curData.Value;
+                                }
+                            }
                         }
                     }
                 }
                 else if ((device is BinaryDevice))
                 {
-                    if((device as BinaryDevice).Triggered)
+
+                    if ((device as BinaryDevice).Triggered)
                     {
-                        datablock[BinaryDeviceOut.ByteIndex.Start] |= (byte)(1 << slot);
+                        datablock[BinaryDeviceOut.GetRange().Start] |= (byte)(1 << slot);
                     }
                     else
                     {
-                        datablock[BinaryDeviceOut.ByteIndex.Start] &= (byte)~(1 << slot);
+                        datablock[BinaryDeviceOut.GetRange().Start] &= (byte)~(1 << slot);
                     }
                 }
 
@@ -85,20 +101,28 @@ namespace PLCEmulator.Model.Device
                 int slot = deviceSlot.Key;
                 IDevice device = deviceSlot.Value;
 
-                if (device is IODevice)
+                var iodevice = device as IODevice;
+                if (iodevice != null)
                 {
-                    var iodev = device as IODevice;
-                    foreach (var map in iodev.DataMapIn)
+                    // TODO: Must calculate start range for multiple devices of same type.
+                    // Use offset to shift the data in the datablock for multiple nutrunners etc.
+                    foreach (var datablockMap in iodevice.DataMapIn)
                     {
-                        map.Value.ByteValue = datablock[map.Value.ByteIndex.Start];
+                        using (var dataEntryEnumerator = datablockMap.Value.GetDataEntries())
+                        {
+                            while (dataEntryEnumerator.MoveNext())
+                            {
+                                var curData = dataEntryEnumerator.Current;
+                                datablockMap.Value.UpdateData(curData.Key, datablock[curData.Key]);
+                            }
+                        }
                     }
-
-                    iodev.InputReceived();
+                    iodevice.InputReceived();
                 }
                 else if (device is BinaryDevice)
                 {
                     var bdev = device as BinaryDevice;
-                    if ((datablock[BinaryDeviceIn.ByteIndex.Start] & (byte)(1 << slot)) > 0)
+                    if ((datablock[BinaryDeviceIn.GetRange().Start] & (byte)(1 << slot)) > 0)
                     {
                         bdev.Active = true;
                     }
@@ -116,3 +140,4 @@ namespace PLCEmulator.Model.Device
         }
     }
 }
+

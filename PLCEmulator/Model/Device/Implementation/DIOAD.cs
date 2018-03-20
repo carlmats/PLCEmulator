@@ -19,10 +19,10 @@ namespace PLCEmulator.Model.Device
 
         public DIOAD()
         {
-            DataMapOut.Add(DataKeyOut.DeviceOnOff, new Datablock(new Range(53,58), 255));
+            DataMapOut.TryAdd(DataKeyOut.DeviceOnOff, new DataBlock(53, 255)); // new Range(53,58)
 
-            BinaryDeviceOut = new Datablock(new Range(170, 195), 0); // 170 works why ??? not 195
-            BinaryDeviceIn = new Datablock(new Range(72, 93), 0); // not 93
+            BinaryDeviceOut = new DataBlock(new Range(170, 195)); // 170 works why ??? not 195
+            BinaryDeviceIn = new DataBlock(new Range(72, 93)); // not 93
 
             Active = true;
 
@@ -37,8 +37,8 @@ namespace PLCEmulator.Model.Device
 
         public override void OnActiveChanged(bool newStatus)
         {
-            if (!newStatus) DataMapOut[DataKeyOut.DeviceOnOff].BytePost = false;
-            else DataMapOut[DataKeyOut.DeviceOnOff].BytePost = true;
+            if (!newStatus) DataMapOut[DataKeyOut.DeviceOnOff].PostByte = false;
+            else DataMapOut[DataKeyOut.DeviceOnOff].PostByte = true;
         }
     }
 }

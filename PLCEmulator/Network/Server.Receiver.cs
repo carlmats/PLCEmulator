@@ -45,8 +45,6 @@ namespace PLCEmulator.Network
                             Logger.Instance.WriteLog("Aborted read due to cancellation request");
                         else
                             Logger.Instance.WriteLog("Aborted read due to an unkown exception");
-
-                        break;
                     }
                 }
             }

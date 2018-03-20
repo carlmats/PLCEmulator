@@ -77,7 +77,6 @@ namespace PLCEmulator.Model.Device
                 _server.DataReceived += Server_DataReceived;
                  bool started = await _server.Start(_address, _port, BLOCK_SIZE);
 
-                //TODO: Add error message to show here
                 if(!started)
                 {
                     if(Active) Active = false;

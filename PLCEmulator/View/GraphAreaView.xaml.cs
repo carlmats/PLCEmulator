@@ -78,7 +78,6 @@ namespace PLCEmulator.View
                     vm.SelectedDevice = vert;
                 }
             }
-
         }
 
         private void g_zoomctrl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -116,8 +115,6 @@ namespace PLCEmulator.View
                     g_area.UpdateAllEdges();
                 }
             }
-
-
         }
 
         private T GetParent<T>(Visual v)
@@ -125,8 +122,7 @@ namespace PLCEmulator.View
             while (v != null)
             {
                 v = VisualTreeHelper.GetParent(v) as Visual;
-                if (v is T)
-                    break;
+                if (v is T) break;
             }
 
             try
@@ -137,6 +133,13 @@ namespace PLCEmulator.View
             {
                 return default(T);
             }
+        }
+
+
+
+        private void EdgeText_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !int.TryParse(e.Text.ToString(), out int trash);
         }
     }
 }

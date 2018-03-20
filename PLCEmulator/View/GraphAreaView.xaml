@@ -72,7 +72,7 @@
                     <ControlTemplate TargetType="{x:Type graphxctrl:EdgeLabelControl}">
                         <Grid>
                             <Border Background="White" CornerRadius="8" MinWidth="30" >
-                                <TextBox x:Name="EdgeText" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" TextChanged="EdgeText_TextChanged" BorderThickness="0" TextAlignment="Center" FontWeight="DemiBold" FontSize="24" Cursor="Pen"/>
+                                <TextBox x:Name="EdgeText" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" TextChanged="EdgeText_TextChanged" PreviewTextInput="EdgeText_PreviewTextInput" BorderThickness="0" TextAlignment="Center" FontWeight="DemiBold" FontSize="24" Cursor="Pen" MaxLength="1" />
                                 <!--<ContentPresenter Margin="3" TextBlock.TextAlignment="Center" TextBlock.FontWeight="DemiBold" TextBlock.FontSize="24" TextBlock.Foreground="Black" />-->
                             </Border>
                         </Grid>
