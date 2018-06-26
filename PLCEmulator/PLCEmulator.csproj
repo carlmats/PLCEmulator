@@ -107,7 +107,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Common\DataBlock.cs" />
-    <Compile Include="Common\Dictionary.cs" />
     <Compile Include="Common\ObservableConcurrentDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\ThreadedObservableCollection.cs" />
@@ -115,6 +114,7 @@
     <Compile Include="Debug\Logger.cs" />
     <Compile Include="Model\Device\Implementation\DIOAR.cs" />
     <Compile Include="Model\Device\Implementation\Nutrunner.cs" />
+    <Compile Include="Model\Device\Implementation\Reader.cs" />
     <Compile Include="Model\Graph\DataEdge.cs" />
     <Compile Include="Model\Graph\DataVertex.cs" />
     <Compile Include="Model\Device\DeviceBase.cs" />
@@ -135,7 +135,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\Data.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Common\Range.cs" />
     <Compile Include="MainWindow.xaml.cs">

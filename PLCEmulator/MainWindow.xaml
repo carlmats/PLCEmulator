@@ -76,11 +76,23 @@
                 <xctk:EditorTemplateDefinition TargetProperties="Active">
                     <xctk:EditorTemplateDefinition.EditingTemplate>
                         <DataTemplate>
-                            <Button Content="{Binding Value}" Command="{Binding DataContext.ToggleActivateCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type xctk:PropertyGrid}}}" MaxWidth="100"/>
+                            <Button Name="ActiveBtn" Content="{Binding Value}" Command="{Binding DataContext.ToggleActivateCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type xctk:PropertyGrid}}}" MaxWidth="100"/>
                         </DataTemplate>
                     </xctk:EditorTemplateDefinition.EditingTemplate>
                 </xctk:EditorTemplateDefinition>
             </xctk:PropertyGrid.EditorDefinitions>
+            <xctk:PropertyGrid.Style>
+                <Style TargetType="xctk:PropertyGrid">
+                    <Setter Property="IsEnabled" Value="True" />
+                    <Setter Property="Opacity" Value="1" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedDevice}" Value="{x:Null}">
+                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="Opacity" Value="0.4" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </xctk:PropertyGrid.Style>
         </xctk:PropertyGrid>
         <ListView x:Name="LogView" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="12"  ItemsSource="{Binding Source={x:Static debug:Logger.Instance}, Path=Log}" />
     </Grid>

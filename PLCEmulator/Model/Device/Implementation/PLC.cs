@@ -56,7 +56,7 @@ namespace PLCEmulator.Model.Device
             }
         }
 
-
+        // TODO: Improve implementation of threading & tasks
         public override async void OnActiveChanged(bool newStatus)
         {
             if(!newStatus)

@@ -18,18 +18,23 @@
     <UserControl.Resources>
         <!--PLC-->
         <DataTemplate DataType="{x:Type device:PLC}">
-            <Path x:Name="PLCPath" Stroke="Black" StrokeThickness="2" Data="{StaticResource ResourceKey=PLC_icon}" Stretch="Fill" Margin="5,5,5,5"/>
+            <Path x:Name="PLCPath" Stroke="Black" StrokeThickness="2" Data="{StaticResource ResourceKey=PLC_icon}" Stretch="Fill" Margin="5,5,5,5" Fill="BlanchedAlmond"/>
         </DataTemplate>
 
         <!--TURCK-->
         <DataTemplate DataType="{x:Type device:DIOAD}">
             <Path x:Name="DIOADPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="2" Data="{StaticResource ResourceKey=DIOAD_icon}"  Stretch="Fill" Margin="5,5,5,5" />
+            <DataTemplate.Triggers>
+                <!--<DataTrigger Binding="{Binding Active}" Value="false">
+                    <Setter Property="" Value="0.1" />
+                </DataTrigger>-->
+            </DataTemplate.Triggers>
         </DataTemplate>
 
         <!--PICK BY LIGHT-->
         <DataTemplate DataType="{x:Type device:PBL}">
             <StackPanel Orientation="Vertical">
-                <Path x:Name="PBLPath" Stroke="Black" Fill="White" StrokeThickness="2" Data="{StaticResource ResourceKey=PBL_icon}" Stretch="Fill" Margin="5,5,5,5"/>
+                <Path x:Name="PBLPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="2" Data="{StaticResource ResourceKey=PBL_icon}" Stretch="Fill" Margin="5,5,5,5"/>
             </StackPanel>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Active}" Value="True">
@@ -43,6 +48,11 @@
             <Path x:Name="NutrunnerPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="2" Data="{StaticResource ResourceKey=Nutrunner_icon}"  Stretch="Fill" Margin="5,5,5,5" />
         </DataTemplate>
 
+        <!--Reader-->
+        <DataTemplate DataType="{x:Type device:Reader}">
+            <Path x:Name="NutrunnerPath" Stroke="Black" Fill="BlanchedAlmond" StrokeThickness="1" Data="{StaticResource ResourceKey=Reader_icon}"  Stretch="Fill" Margin="5,5,5,5" />
+        </DataTemplate>
+
         <!--EDGE CONTROL-->
         <Style TargetType="graphxctrl:EdgeControl">
             <Setter Property="Template">
@@ -50,10 +60,8 @@
                     <ControlTemplate TargetType="graphxctrl:EdgeControl">
                         <Grid>
                             <!-- PART_edgePath: EVisibility, PART_edgeArrowPath: AVisibility -->
-                            <Path Stroke="{TemplateBinding Foreground}"
-                          StrokeThickness="2" MinWidth="1" MinHeight="1"
-                          ToolTip="{TemplateBinding ToolTip}" 
-                            x:Name="PART_edgePath" Visibility="{Binding EVisibility}"/>
+                            <Path Stroke="{TemplateBinding Foreground}" StrokeThickness="2" MinWidth="1" MinHeight="1" ToolTip="{TemplateBinding ToolTip}"
+                                x:Name="PART_edgePath" Visibility="{Binding EVisibility}"/>
                             <graphxctrl:DefaultEdgePointer NeedRotation="true" x:Name="PART_EdgePointerForTarget" Visibility="{Binding AVisibility}">
                                 <Path Data="M0,0.5 L1,1 1,0" Fill="Black" Stretch="Uniform" Width="10" Height="10"/>
                             </graphxctrl:DefaultEdgePointer>

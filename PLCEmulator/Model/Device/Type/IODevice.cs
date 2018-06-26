@@ -38,15 +38,12 @@ namespace PLCEmulator.Model.Device
         }
 
         public abstract void OnActiveChanged(bool newStatus);
-        
+
         [Browsable(false)]
         public ObservableConcurrentDictionary<Enum, DataBlock> DataMapIn { get; protected set; }
 
         [Browsable(false)]
         public ObservableConcurrentDictionary<Enum, DataBlock> DataMapOut { get; protected set; }
-
-        [Browsable(false)]
-        public virtual void InputReceived() { }
 
 
         [Category("Action")]

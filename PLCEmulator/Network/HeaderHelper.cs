@@ -69,8 +69,6 @@ namespace PLCEmulator.Network
             bytes = BitConverter.GetBytes(header.Number);
             datablock_out[8] = bytes[1];
             datablock_out[9] = bytes[0];
-
-
         }
     }
 }

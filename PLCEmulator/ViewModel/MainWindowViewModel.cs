@@ -35,6 +35,7 @@ namespace PLCEmulator.ViewModel
             DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(DIOAD), Name = "Turck", Geometry = (Geometry)Application.Current.Resources["DIOAD_icon"] });
             DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(PBL), Name = "PBL", Geometry = (Geometry)Application.Current.Resources["PBL_icon"] });
             DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(Nutrunner), Name = "Nutrunner", Geometry = (Geometry)Application.Current.Resources["Nutrunner_icon"] });
+            DeviceCollection.Add(new DeviceDummy { DeviceType = typeof(Reader), Name = "Reader", Geometry = (Geometry)Application.Current.Resources["Reader_icon"] });
         }
     }
 }

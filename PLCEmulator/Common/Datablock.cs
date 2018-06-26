@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace PLCEmulator.Common
 {
-    public class DataBlock //: IEnumerable<Data>
+    // TODO: En separat för simpla bools och en för större värden
+    // Kolla funktionalitet för read / write, finns bättre lösningar
+    // subscriba på datamapIn blocken?
+    public class DataBlock
     {
 
         public DataBlock(Range byteIndices, bool byteOwner = false, bool postByte = false)
@@ -51,12 +54,6 @@ namespace PLCEmulator.Common
             _dataDictionary.TryAdd(byteIndex, byteValue);
         }
 
-        //public ConcurrentDictionary<int, byte> DataEntries
-        //{
-        //    get => _dataDictionary;
-        //    set => _dataDictionary = value;
-        //}
-
         public IEnumerator<KeyValuePair<int, byte>> GetDataEntries()
         {
             return _dataDictionary.GetEnumerator();
@@ -65,11 +62,15 @@ namespace PLCEmulator.Common
         public void UpdateData(int index, byte data)
         {
             _dataDictionary[index] = data;
+            OnDataChanged(new DataChangedEventArgs(index, data));
         }
 
         public void AddData(int index, byte data)
         {
-            _dataDictionary.TryAdd(index, data);
+            if(_dataDictionary.TryAdd(index, data))
+            {
+                OnDataChanged(new DataChangedEventArgs(index, data));
+            }
         }
 
         //TODO: Exceptions
@@ -90,10 +91,30 @@ namespace PLCEmulator.Common
             set => _isByteOwner = value;
         }
 
+        protected virtual void OnDataChanged(DataChangedEventArgs e)
+        {
+            DataChanged?.Invoke(this, e);
+        }
+
+        public class DataChangedEventArgs : EventArgs
+        {
+            public DataChangedEventArgs(int key, byte data)
+            {
+                Key = key;
+                NewData = data;
+            }
+
+            public int Key { get; set; }
+
+            public byte NewData { get; set; }
+        }
+
         private bool _isByteOwner;
         private bool _postByte;
         private Range _indices;
         private ConcurrentDictionary<int, byte> _dataDictionary = new ConcurrentDictionary<int, byte>();
+
+        public event Action<DataBlock, DataChangedEventArgs> DataChanged = delegate { };
 
     }
 }

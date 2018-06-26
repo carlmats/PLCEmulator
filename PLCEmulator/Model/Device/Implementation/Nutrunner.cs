@@ -44,7 +44,7 @@ namespace PLCEmulator.Model.Device
             //DataMapOut.Add(DataKeyOut.LiftedSocketNumberDevId, new Datablock(new Range(194, 194)));
             //DataMapOut.Add(DataKeyOut.LiftedSocketNumberLftSc, new Datablock(new Range(195, 195)));
 
-            TighteningOK = true;
+
         }
 
 
@@ -72,12 +72,23 @@ namespace PLCEmulator.Model.Device
             {
                 _tighteningOK = value;
                 DataMapOut[DataKeyOut.TighteningOK].PostByte = value;
-                DataMapOut[DataKeyOut.TighteningNOK].PostByte = !value;
                 OnPropertyChanged("TighteningOK");
             }
         }
 
-        [Category("Tightening"), DisplayName("Torque"), PropertyOrder(2)]
+        [Category("Tightening"), DisplayName("Tightening NOK"), PropertyOrder(2)]
+        public bool TighteningNOK
+        {
+            get => _tighteningNOK;
+            set
+            {
+                _tighteningNOK = value;
+                DataMapOut[DataKeyOut.TighteningNOK].PostByte = value;
+                OnPropertyChanged("TighteningNOK");
+            }
+        }
+
+        [Category("Tightening"), DisplayName("Torque"), PropertyOrder(3)]
         public ushort FinalTorque
         {
             get => _finalTorque;
@@ -89,7 +100,7 @@ namespace PLCEmulator.Model.Device
             }
         }
 
-        [Category("Tightening"), DisplayName("Angle"), PropertyOrder(3)]
+        [Category("Tightening"), DisplayName("Angle"), PropertyOrder(4)]
         public ushort FinalAngle
         {
             get => _finalAngle;
@@ -117,23 +128,12 @@ namespace PLCEmulator.Model.Device
         }
 
 
-
-        public override void InputReceived()
-        {
-            base.InputReceived();
-
-            //if(DataMapIn[DataKeyIn.KeepAliveAckA].ByteValue == 255)
-            //{
-            //    // Do stuff example
-            //}
-        }
-
         public override void OnActiveChanged(bool newStatus)
         {
            
         }
 
-        private bool _tighteningOK, _queueFlushed;
+        private bool _tighteningOK, _tighteningNOK, _queueFlushed;
         private ushort _finalTorque, _finalAngle;
     }
 }

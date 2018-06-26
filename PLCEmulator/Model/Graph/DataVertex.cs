@@ -19,5 +19,6 @@ namespace PLCEmulator.Model.Graph
         [Browsable(false)]
         public new long ID { get; set; }
 
+
     }
 }

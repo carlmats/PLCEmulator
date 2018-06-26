@@ -117,7 +117,6 @@ namespace PLCEmulator.Model.Device
                             }
                         }
                     }
-                    iodevice.InputReceived();
                 }
                 else if (device is BinaryDevice)
                 {
