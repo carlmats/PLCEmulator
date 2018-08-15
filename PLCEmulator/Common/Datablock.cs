@@ -34,8 +34,8 @@ namespace PLCEmulator.Common
 
         public DataBlock(Range byteIndices, byte[] byteValues, bool byteOwner = false, bool postByte = false)
         {
-            if (byteIndices.Count() != byteValues.Count())
-                throw new ArgumentException("Byte count and range missmatch");
+         //   if (byteIndices.Count() != byteValues.Count())
+        //        throw new ArgumentException("Byte count and range missmatch");
 
             _indices = byteIndices;
             _isByteOwner = byteOwner;
